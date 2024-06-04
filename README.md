@@ -130,6 +130,10 @@ snp_bonf<- assoc%>% subset(P<(0.00000005/nrow(assoc)))
 nrow(snp_bonf)
 ```
 ## Heritability
+```bash
+plink --make-grm-gz --bfile GWA-full-height --allow-no-sex  --out full-height
+gcta64 --grm-gz full-height --pheno heights.phen --reml --out heights_test
+```
 
 ## Ploygenic scores prediction
 Preparation of discovery and target samples 
