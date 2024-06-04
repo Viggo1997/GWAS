@@ -62,7 +62,22 @@ height_out<-indi%>% anti_join(height,by=c("V1"="V1"))
 write.table(height_out, file = "height_out.txt", col.names = F, row.names = F)
 ```
 removal of individuals with no selfreported height
-
+```bash
+ plink --bfile  GWA-QC-ibd --remove height_out.txt --allow-no-sex  --make-bed --out GWA-height
+```
+Addition of phenotype to a new fam file
+```R
+fam_data<-read.table("GWA-height.fam",header=F)
+fam_data<-merge(fam_data,height,by="V1")
+fam_data$V6<-fam_data$V2.y
+fam_data<-fam_data[,!(names(fam_data)%in% "V2.y")]
+colnames(fam_data) <- c("FID", "IID", "PID", "MID", "Sex", "Phenotype")
+write.table(fam_data,"GWA-height_cor.fam" , sep = "\t", quote = FALSE, row.names = FALSE, col.names = TRUE)
+```
+Adding the phenotype to the apropriate dataformat
+```bash
+plink --bfile GWA-height --pheno GWA-height_cor.fam --pheno-name Phenotype --allow-no-sex  --make-bed --out GWA-full-height
+```
 
 ## PCA
 Creation of the principle components
@@ -88,6 +103,28 @@ ggplot(eigenvec_height,aes(x=PC1,y=PC2,color=Sex))+
 ggplot(eigenvec_height,aes(x=PC1,y=PC2,color=Height))+
   geom_point()
 ```
+## Association study
+```bash
+plink --bfile GWA-full-height --assoc --allow-no-sex --linear  --out GWA-full-height
+```
+
+```R
+library(tidyverse)
+library("qqman")
+vignette("qqman")
+assoc <- read.table('GWA-full-height.assoc.linear', head=T)
+assoc <- na.omit(assoc) %>% subset(CHR<=23)
+manhattan(d,suggestiveline=F)
+```
+The amount of associated SNPs were found with the following
+```
+snp<- assoc%>% subset(P<0.00000005)
+nrow(snp)
+snp_bonf<- assoc%>% subset(P<(0.00000005/nrow(assoc)))
+nrow(snp_bonf)
+```
+
+
 
 
 
