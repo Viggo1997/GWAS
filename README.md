@@ -32,14 +32,13 @@ d_p <- rbind(rows,d_m)
 write.table(d_p, file = "wrong_het.txt", col.names = F, row.names = F)
 ```
 removal of individuals with a too high heterozygosity rate or NA data.
-shell promps
+
 ```bash
 plink --bfile GWA-QC --remove wrong_het.txt --allow-no-sex  --make-bed --out GWA-QC-het
 ```
 
-Identification of duplicated or related indiviudals
+# Identification of duplicated or related indiviudals
 
-shell prompt
 ```
  plink --allow-no-sex --bfile GWA-QC-het --indep-pairwise 500kb 5 0.2 --out GWA-QC-het
 
@@ -56,6 +55,17 @@ Removal of the IBD individuals
 ```bash
 plink --bfile  GWA-QC-het --remove wrong_ibd.txt --allow-no-sex  --make-bed --out GWA-QC-ibd
 ```
+### Addition of phenotype
+Prepartion of file with individuals with no selfreported height
+```R
+library(tidyverse)
+height<-read.table('height.txt')
+indi <- read.table("GWA-QC-ibd.fam",header=F)
+height_out<-indi%>% anti_join(height,by=c("V1"="V1"))
+write.table(height_out, file = "height_out.txt", col.names = F, row.names = F)
+```
+removal of individuals with no selfreported height
+
 
 ### PCA
 Creation of the principle components
