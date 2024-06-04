@@ -34,14 +34,53 @@ write.table(d_p, file = "wrong_het.txt", col.names = F, row.names = F)
 removal of individuals with a too high heterozygosity rate or NA data.
 shell promps
 ```bash
-plink --bfile GWA-QC --remove wrong_het.txt --allow-no-sex --make-bed --out GWA-QC
+plink --bfile GWA-QC --remove wrong_het.txt --allow-no-sex  --make-bed --out GWA-QC-het
 ```
 
 Identification of duplicated or related indiviudals
 
 shell prompt
 ```
-plink --bfile GWA-QC --indep-pairwise 500kb 5 0.2 --out GWA-QC
+ plink --allow-no-sex --bfile GWA-QC-het --indep-pairwise 500kb 5 0.2 --out GWA-QC-het
+
+plink --bfile GWA-QC-het --extract GWA-QC-het.prune.in --genome --min 0.185 --allow-no-sex --out GWA-QC-het
 ```
+Identification of the IBD individuals in R
+```R
+ibd <- read.table('GWA-QC-het.genome', header = TRUE)
+members <- ibd$FID1
+members <- unique(members)
+write.table(cbind(members,members), file = 'wrong_ibd.txt', col.names = F, row.names = F)
+```
+Removal of the IBD individuals
+```bash
+plink --bfile  GWA-QC-het --remove wrong_ibd.txt --allow-no-sex  --make-bed --out GWA-QC-ibd
+```
+
+### PCA
+Creation of the principle components
+shell prompt
+```
+plink --allow-no-sex --bfile GWA-QC-ibd --indep-pairwise 500kb 5 0.2 --out GWA-QC-ibd
+
+plink --allow-no-sex --bfile GWA-QC-ibd --extract GWA-QC-ibd.in --pca 20 --out GWA-QC-ibd
+```
+```R
+library(tidyverse)
+eigenvec_height<-read.table('GWA-full-height.eigenvec',head=F)
+info<-read.table('GWA-full-height.fam', head=F)
+eigenvec_height<-merge(eigenvec_height,info,by="V1")
+sex_mapping <- c("Ambigous", "Male", "Female")
+eigenvec_height$Sex<-sex_mapping[eigenvec_height$V5.y+1]
+eigenvec_height$Height<-eigenvec_height$V6.y
+eigenvec_height$PC1<-eigenvec_height$V3.x
+eigenvec_height$PC2<-eigenvec_height$V4.x
+ggplot(eigenvec_height,aes(x=PC1,y=PC2,color=Sex))+
+  geom_point()+
+  scale_color_manual(values = c("black","blue", "red"))
+ggplot(eigenvec_height,aes(x=PC1,y=PC2,color=Height))+
+  geom_point()
+```
+
 
 
