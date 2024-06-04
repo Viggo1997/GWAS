@@ -2,11 +2,11 @@
 
 For 
 plink 
-### Software:
+## Software:
 The tool used for Quality Control and test of association was plink (version 1.90b6.21). While for the study of heritability gcta (version 1.94.1) was used.
 All other datamanagement and graph making were done in R
 
-### Quality control
+## Quality control
 
 shell prompt
 ```
@@ -37,7 +37,7 @@ removal of individuals with a too high heterozygosity rate or NA data.
 plink --bfile GWA-QC --remove wrong_het.txt --allow-no-sex  --make-bed --out GWA-QC-het
 ```
 
-# Identification of duplicated or related indiviudals
+### Identification of duplicated or related indiviudals
 
 ```
  plink --allow-no-sex --bfile GWA-QC-het --indep-pairwise 500kb 5 0.2 --out GWA-QC-het
@@ -55,7 +55,7 @@ Removal of the IBD individuals
 ```bash
 plink --bfile  GWA-QC-het --remove wrong_ibd.txt --allow-no-sex  --make-bed --out GWA-QC-ibd
 ```
-### Addition of phenotype
+## Addition of phenotype
 Prepartion of file with individuals with no selfreported height
 ```R
 library(tidyverse)
@@ -67,7 +67,7 @@ write.table(height_out, file = "height_out.txt", col.names = F, row.names = F)
 removal of individuals with no selfreported height
 
 
-### PCA
+## PCA
 Creation of the principle components
 shell prompt
 ```
