@@ -101,6 +101,8 @@ eigenvec_height$Sex<-sex_mapping[eigenvec_height$V5.y+1]
 eigenvec_height$Height<-eigenvec_height$V6.y
 eigenvec_height$PC1<-eigenvec_height$V3.x
 eigenvec_height$PC2<-eigenvec_height$V4.x
+ggplot(eigenvec_height,aes(x=PC1,y=PC2))+
+  geom_point()
 ggplot(eigenvec_height,aes(x=PC1,y=PC2,color=Sex))+
   geom_point()+
   scale_color_manual(values = c("black","blue", "red"))
